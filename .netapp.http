@@ -1,0 +1,6 @@
+@_netapp_HostAddress = http://localhost:5068
+
+GET {{_netapp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

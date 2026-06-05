@@ -1,0 +1,608 @@
+/* ── CSS tokens (Corti brand) ────────────────────────────────────────────── */
+:root {
+  --background:            hsl(0 0% 100%);
+  --foreground:            hsl(0 0% 6%);
+  --card:                  hsl(0 0% 100%);
+  --card-foreground:       hsl(0 0% 6%);
+  --primary:               hsl(0 0% 6%);
+  --primary-foreground:    hsl(0 0% 100%);
+  --secondary:             hsl(0 0% 100%);
+  --secondary-foreground:  hsl(0 0% 6%);
+  --muted:                 hsl(0 0% 98%);
+  --muted-foreground:      hsl(0 0% 41%);
+  --accent:                hsl(0 0% 98%);
+  --accent-foreground:     hsl(222 47% 11%);
+  --border:                hsl(0 0% 93%);
+  --input:                 hsl(0 0% 90%);
+  --ring:                  hsl(215 16% 47%);
+  --radius:                0.5rem;
+  --variant-error-bg:      hsl(0 100% 97%);
+  --variant-error-border:  hsl(0 93% 86%);
+  --variant-error-text:    hsl(0 72% 37%);
+  --corti-lime:            hsl(77 94% 53%);   /* #b8f818 */
+  --corti-lime-foreground: hsl(0 0% 6%);
+
+  --header-h: 56px;
+  --sidebar-w: 260px;
+  --gap: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background:           hsl(0 0% 6%);
+    --foreground:           hsl(0 0% 90%);
+    --card:                 hsl(0 0% 10%);
+    --card-foreground:      hsl(0 0% 90%);
+    --primary:              hsl(0 0% 100%);
+    --primary-foreground:   hsl(0 0% 6%);
+    --secondary:            hsl(0 0% 16%);
+    --secondary-foreground: hsl(0 0% 90%);
+    --muted:                hsl(0 0% 16%);
+    --muted-foreground:     hsl(0 0% 65%);
+    --accent:               hsl(0 0% 16%);
+    --accent-foreground:    hsl(0 0% 90%);
+    --border:               hsl(0 0% 25%);
+    --input:                hsl(0 0% 25%);
+    --ring:                 hsl(0 0% 100%);
+    --variant-error-bg:     hsl(0 60% 9%);
+    --variant-error-border: hsl(0 52% 28%);
+    --variant-error-text:   hsl(0 68% 82%);
+  }
+}
+
+/* ── Reset & base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.corti-logo {
+  display: block;
+  height: 22px;
+  width: auto;
+  /* invert logo in dark mode so the black SVG stays visible */
+  filter: none;
+}
+@media (prefers-color-scheme: dark) {
+  .corti-logo { filter: invert(1); }
+}
+
+.header-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.active-label {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.active-section-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--corti-lime);
+  color: var(--corti-lime-foreground);
+}
+
+.credits-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.credits-label {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.credits-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+/* Status dot */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--muted-foreground);
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.status-dot.connected    { background: var(--corti-lime); }
+.status-dot.connecting   { background: hsl(40 90% 55%); }
+.status-dot.error        { background: hsl(0 80% 55%); }
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.main {
+  margin-top: var(--header-h);
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-w);
+  gap: var(--gap);
+  padding: var(--gap);
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* ── SOAP grid: all 4 sections always visible ─────────────────────────────── */
+.soap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--gap);
+  min-height: 0;
+}
+
+.soap-section {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Active section highlight */
+.soap-section.is-active {
+  border-color: var(--corti-lime);
+  box-shadow: 0 0 0 1px var(--corti-lime);
+}
+
+.soap-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.soap-label {
+  font-size: 11px;
+  font-weight: 800;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  flex-shrink: 0;
+}
+.is-active .soap-label {
+  background: var(--corti-lime);
+  color: var(--corti-lime-foreground);
+}
+
+.soap-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.soap-subtitle {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-left: auto;
+}
+
+.soap-textarea {
+  flex: 1;
+  resize: none;
+  border: none;
+  outline: none;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 0;
+}
+.soap-textarea::placeholder { color: var(--muted-foreground); }
+
+/* Interim text (live in-progress transcript) */
+.interim-line {
+  min-height: 20px;
+  padding: 4px 14px 8px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+  border-top: 1px dashed var(--border);
+  white-space: pre-wrap;
+}
+.interim-line:empty { display: none; }
+
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.widget-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.widget-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+/* Corti web component default sizing */
+corti-dictation {
+  display: block;
+  width: 100%;
+}
+
+/* Error banner */
+.error-banner {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--variant-error-bg);
+  border: 1px solid var(--variant-error-border);
+  color: var(--variant-error-text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.error-banner.hidden { display: none; }
+
+/* ── Voice commands disclosure ────────────────────────────────────────────── */
+.commands-details {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.commands-summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  color: var(--foreground);
+  list-style: none;
+}
+.commands-summary::-webkit-details-marker { display: none; }
+.commands-summary:hover { background: var(--muted); }
+
+.commands-panel {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.commands-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 12px 0 6px;
+}
+
+.commands-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+kbd {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--foreground);
+}
+
+/* ── Last command feedback ────────────────────────────────────────────────── */
+.command-output {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 8px 12px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  word-break: break-word;
+}
+.command-output.hidden { display: none; }
+
+/* ── Section nav ──────────────────────────────────────────────────────────── */
+.section-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.nav-btn {
+  padding: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.nav-btn:hover { background: var(--muted); }
+.nav-btn.active-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+}
+
+/* ── Actions ──────────────────────────────────────────────────────────────── */
+.actions-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  width: 100%;
+}
+.action-btn:hover { opacity: 0.85; }
+
+.action-btn--ghost {
+  background: transparent;
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+.action-btn--ghost:hover {
+  background: var(--muted);
+  color: var(--foreground);
+  opacity: 1;
+}
+
+/* ── Responsive tweak at 1280px ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .widget-card { flex: 1 1 200px; }
+}
+
+/* ── Model selector dropdown ──────────────────────────────────────────────── */
+.model-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.model-select-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.model-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 5px 28px 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--background);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+
+.model-select:hover  { border-color: var(--foreground); }
+.model-select:focus  { outline: none; border-color: var(--foreground); }
+
+@media (prefers-color-scheme: dark) {
+  .model-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  }
+}
+
+/* ── Provider banner (sidebar) ────────────────────────────────────────────── */
+.provider-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.provider-banner-icon { font-size: 20px; }
+
+.provider-banner-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.provider-banner-sub {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  margin-top: 1px;
+}
+
+/* ── AssemblyAI mic widget ────────────────────────────────────────────────── */
+.aai-mic-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.aai-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.aai-btn:hover {
+  background: var(--accent);
+  border-color: hsl(220 80% 58%);
+}
+
+/* Recording active state */
+.aai-btn.recording {
+  background: hsl(0 80% 96%);
+  border-color: hsl(0 80% 60%);
+  color: hsl(0 72% 37%);
+  animation: aai-pulse 2s infinite;
+}
+@media (prefers-color-scheme: dark) {
+  .aai-btn.recording {
+    background: hsl(0 60% 12%);
+    border-color: hsl(0 70% 45%);
+    color: hsl(0 68% 75%);
+  }
+}
+
+@keyframes aai-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(0 80% 60% / 0.3); }
+  50%       { box-shadow: 0 0 0 6px hsl(0 80% 60% / 0); }
+}
+
+.aai-btn-icon { line-height: 1; }
+
+/* Audio visualizer bars */
+.aai-viz {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 24px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.aai-viz.active { opacity: 1; }
+
+.aai-viz span {
+  width: 4px;
+  border-radius: 2px;
+  background: hsl(220 80% 58%);
+  height: 4px;
+  transition: height 0.08s ease;
+}
+
+.aai-model-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ── Utility ─────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ── Nav link to assistant ───────────────────────────────────────────────── */
+.page-nav-link {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  font-family: 'Inter', sans-serif;
+  transition: color 0.15s;
+}
+.page-nav-link:hover { color: var(--foreground); }

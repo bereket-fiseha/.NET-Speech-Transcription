@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Corti Medical Assistant</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <link rel="stylesheet" href="assistant.css" />
+</head>
+<body>
+
+  <!-- ── Header ────────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-left">
+      <img
+        src="https://cdn.prod.website-files.com/679910de24e675a93f045f3b/68417ed4368d812aef21ec5a_corti-logo-black.svg"
+        alt="Corti" class="corti-logo" width="72" height="24"
+      />
+      <div class="header-titles">
+        <span class="header-title">Corti Medical Assistant</span>
+        <span class="agent-chip">AGENT</span>
+        <span class="header-sub">Multi-expert · PubMed · Coding · Clinical Trials</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Credits display -->
+      <div class="credits-wrap">
+        <span class="credits-label">Credits used</span>
+        <span id="credits-total" class="credits-value mono">—</span>
+      </div>
+      <!-- New chat -->
+      <button id="btn-new-chat" class="new-chat-btn" title="Start a new conversation">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        New chat
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Chat area ─────────────────────────────────────────────────────────── -->
+  <main class="chat-main">
+    <div class="messages-wrap">
+      <ul id="message-list" class="message-list" role="log" aria-live="polite" aria-label="Chat messages">
+
+        <!-- Empty state: shown when no messages -->
+        <li id="empty-state" class="empty-state">
+          <p class="empty-title">Ask a clinical question</p>
+          <p class="empty-sub">The assistant routes your question to the right expert — literature, coding, or trials — and streams an evidence-backed answer.</p>
+
+          <div class="seed-prompts">
+            <button class="seed-btn" data-prompt="Latest evidence on early SGLT2 inhibitor use after acute MI — what do recent trials show about cardiovascular outcomes?">
+              <span class="seed-icon">📄</span>
+              <span>SGLT2 inhibitors after acute MI</span>
+              <span class="seed-tag">PubMed</span>
+            </button>
+            <button class="seed-btn" data-prompt="Suggest ICD-10 codes for type 2 diabetes with peripheral neuropathy and mild non-proliferative retinopathy. Include the principal diagnosis.">
+              <span class="seed-icon">🏷️</span>
+              <span>ICD-10 codes for T2DM with complications</span>
+              <span class="seed-tag">Coding</span>
+            </button>
+            <button class="seed-btn" data-prompt="What clinical trials are listed for empagliflozin in heart failure with preserved ejection fraction? Include trial IDs, phase, and current status.">
+              <span class="seed-icon">🔬</span>
+              <span>Empagliflozin HFpEF trials</span>
+              <span class="seed-tag">Trials</span>
+            </button>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- Thinking bubble: rendered outside the list so it always appears last -->
+      <div id="thinking-bubble" class="thinking-bubble hidden" aria-live="polite">
+        <div class="thinking-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span id="thinking-status" class="thinking-status"></span>
+        <span id="thinking-timer" class="thinking-timer mono"></span>
+        <button id="btn-cancel" class="cancel-btn" title="Cancel">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+               stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Input ──────────────────────────────────────────────────────────── -->
+    <div class="input-bar">
+      <textarea
+        id="chat-input"
+        class="chat-input"
+        placeholder="Ask a clinical question…"
+        rows="1"
+        maxlength="4000"
+        aria-label="Message input"
+      ></textarea>
+      <button id="btn-send" class="send-btn" aria-label="Send message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+  <script type="module" src="assistant.js"></script>
+</body>
+</html>

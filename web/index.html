@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Dictation</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Corti dictation web component (CDN) — used only when Corti provider is active -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@corti/dictation-web/dist/bundle.js"></script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-left">
+ 
+      <span class="header-title">Live Medical Dictation</span>
+    </div>
+
+    <div class="header-right">
+      <!-- ── Model selector dropdown ──────────────────────────────────── -->
+      <div class="model-select-wrap">
+        <label for="model-select" class="model-select-label">Model</label>
+        <select id="model-select" class="model-select" aria-label="Select dictation model">
+          <option value="corti">Corti AI</option>
+          <option value="assemblyai">AssemblyAI · Universal-3 Pro</option>
+        </select>
+      </div>
+
+      <!-- Active section indicator -->
+      <span class="active-label">Active:</span>
+      <span id="active-section-name" class="active-section-chip">Subjective</span>
+
+      <!-- Credits / session display -->
+      <div class="credits-display">
+        <span class="credits-label" id="credits-label">Credits</span>
+        <span id="credits-value" class="credits-value mono">—</span>
+      </div>
+
+      <!-- Status dot -->
+      <div id="status-dot" class="status-dot" title="Disconnected"></div>
+    </div>
+  </header>
+
+  <!-- ── Main ───────────────────────────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Left: SOAP editor -->
+    <div class="soap-grid">
+
+      <div class="soap-section" id="section-subjective" data-index="0">
+        <div class="soap-header">
+          <span class="soap-label">S</span>
+          <span class="soap-title">Subjective</span>
+          <span class="soap-subtitle">Chief complaint, history, symptoms</span>
+        </div>
+        <textarea id="ta-subjective" class="soap-textarea"
+          placeholder="Dictate or type the patient's subjective history…" spellcheck="true"></textarea>
+        <p class="interim-line" id="interim-subjective"></p>
+      </div>
+
+      <div class="soap-section" id="section-objective" data-index="1">
+        <div class="soap-header">
+          <span class="soap-label">O</span>
+          <span class="soap-title">Objective</span>
+          <span class="soap-subtitle">Vitals, exam findings, labs</span>
+        </div>
+        <textarea id="ta-objective" class="soap-textarea"
+          placeholder="Dictate or type objective findings…" spellcheck="true"></textarea>
+        <p class="interim-line" id="interim-objective"></p>
+      </div>
+
+      <div class="soap-section" id="section-assessment" data-index="2">
+        <div class="soap-header">
+          <span class="soap-label">A</span>
+          <span class="soap-title">Assessment</span>
+          <span class="soap-subtitle">Diagnosis, differential</span>
+        </div>
+        <textarea id="ta-assessment" class="soap-textarea"
+          placeholder="Dictate or type your assessment…" spellcheck="true"></textarea>
+        <p class="interim-line" id="interim-assessment"></p>
+      </div>
+
+      <div class="soap-section" id="section-plan" data-index="3">
+        <div class="soap-header">
+          <span class="soap-label">P</span>
+          <span class="soap-title">Plan</span>
+          <span class="soap-subtitle">Treatment, medications, follow-up</span>
+        </div>
+        <textarea id="ta-plan" class="soap-textarea"
+          placeholder="Dictate or type the treatment plan…" spellcheck="true"></textarea>
+        <p class="interim-line" id="interim-plan"></p>
+      </div>
+
+    </div>
+
+    <!-- Right: Controls sidebar -->
+    <aside class="sidebar">
+
+      <!-- ── Provider info banner ──────────────────────────────────────── -->
+      <div class="provider-banner" id="provider-banner">
+        <span class="provider-banner-icon" id="provider-icon">🎙️</span>
+        <div>
+          <p class="provider-banner-title" id="provider-banner-title">Corti AI</p>
+          <p class="provider-banner-sub" id="provider-banner-sub">Medical-grade STT · WebSocket</p>
+        </div>
+      </div>
+
+      <!-- ── Mic widget: Corti (shows/hides per provider) ─────────────── -->
+      <div class="widget-card" id="corti-widget">
+        <p class="widget-label">Microphone · Corti</p>
+        <corti-dictation id="dictation"></corti-dictation>
+        <div id="error-banner" class="error-banner hidden">
+          <span id="error-text"></span>
+        </div>
+      </div>
+
+      <!-- ── Mic widget: AssemblyAI (shows/hides per provider) ─────────── -->
+      <div class="widget-card" id="assemblyai-widget" style="display:none">
+        <p class="widget-label">Microphone · AssemblyAI</p>
+        <div class="aai-mic-wrap">
+          <button id="aai-btn" class="aai-btn" aria-label="Start recording">
+            <span class="aai-btn-icon">
+              <!-- mic icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </span>
+            <span id="aai-btn-label">Start dictation</span>
+          </button>
+          <div id="aai-viz" class="aai-viz" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div id="aai-error" class="error-banner hidden">
+          <span id="aai-error-text"></span>
+        </div>
+        <p class="aai-model-badge">Universal-3 Pro · u3-rt-pro</p>
+      </div>
+
+      <!-- Voice commands (Corti only) -->
+      <details class="commands-details" id="corti-commands">
+        <summary class="commands-summary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+          Voice commands
+        </summary>
+        <div class="commands-panel">
+          <p class="commands-group-label">Navigation</p>
+          <ul class="commands-list">
+            <li><kbd>go to subjective section</kbd></li>
+            <li><kbd>go to objective section</kbd></li>
+            <li><kbd>go to assessment section</kbd></li>
+            <li><kbd>go to plan section</kbd></li>
+            <li><kbd>switch to next section</kbd></li>
+            <li><kbd>switch to previous section</kbd></li>
+          </ul>
+          <p class="commands-group-label">Editing</p>
+          <ul class="commands-list">
+            <li><kbd>delete the last sentence</kbd></li>
+            <li><kbd>delete that</kbd></li>
+            <li><kbd>clear section</kbd></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- Last command feedback -->
+      <div id="command-output" class="command-output hidden"></div>
+
+      <!-- Section nav -->
+      <div class="widget-card">
+        <p class="widget-label">Jump to section</p>
+        <div class="section-nav">
+          <button class="nav-btn active-btn" data-index="0">S</button>
+          <button class="nav-btn" data-index="1">O</button>
+          <button class="nav-btn" data-index="2">A</button>
+          <button class="nav-btn" data-index="3">P</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="widget-card actions-card">
+        <button id="btn-copy" class="action-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+          </svg>
+          Copy note
+        </button>
+        <button id="btn-clear-all" class="action-btn action-btn--ghost">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+               stroke-linejoin="round">
+            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          </svg>
+          Clear all
+        </button>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Nav to clinical assistant -->
+  <a href="/assistant.html" class="page-nav-link">Clinical Assistant →</a>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
